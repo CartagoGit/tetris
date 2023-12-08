@@ -1,0 +1,45 @@
+:host {
+  display: grid;
+  grid-template-areas: "header header" "main aside" "footer footer";
+  background-color: var(--gray-600);
+  border: 2px solid var(--gray-950);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+}
+
+header,
+main,
+aside,
+footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 10px;
+}
+
+header {
+  grid-area: header;
+  background-color: var(--gray-800);
+  border-bottom: 1px solid var(--gray-700);
+  box-shadow: var(--box-shadow);
+  font-size: 24px;
+}
+
+main {
+  grid-area: main;
+}
+
+aside {
+  grid-area: aside;
+  background-color: var(--gray-700);
+  border-left: 1px solid var(--gray-500);
+}
+
+footer {
+  grid-area: footer;
+  background-color: var(--gray-800);
+  border-top: 1px solid var(--gray-700);
+  box-shadow: var(--box-shadow);
+  font-size: 14px;
+}
