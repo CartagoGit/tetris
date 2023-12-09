@@ -9,6 +9,7 @@ import {
   interval,
   takeUntil,
 } from 'rxjs';
+import { Piece } from '../models/piece.model';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +27,10 @@ export class StateService {
   public gameStart$ = new BehaviorSubject<boolean>(false);
   public maxScore: number;
 
-  public speed = 1000;
+  public currentPiece$ = new BehaviorSubject<Piece | undefined>(undefined);
+  public nextPiece$ = new BehaviorSubject<Piece>(new Piece());
+
+  public speed = 1;
 
   public isPaused$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     true

@@ -42,14 +42,33 @@ export class TableComponent {
   private _createSubscriptions(): void {
     const subGameStart = this.stateSvc.gameStart$.subscribe((gameStart) => {
       if (!gameStart) return;
-      this.table = this._createNewTable();
+      this._newGame();
     });
     this.subscriptions.push(subGameStart);
   }
 
+  private _newGame(): void {
+    this._createNewTable();
+  }
+
   private _createNewTable(): TableFillSpace[][] {
-    return new Array(this.rows).fill(
+    this.table = new Array(this.rows).fill(
       new Array<TableFillSpace>(this.columns).fill('x')
     );
+    return this.table;
+  }
+
+  private _createNewPiece(): void {
+    this.stateSvc.currentPiece$.next(this.stateSvc.nextPiece$.value);
+    this.stateSvc.nextPiece$.next(new Piece());
+  }
+
+  private _paintPiece (piece: Piece): void {
+    const currentPiece = this.stateSvc.currentPiece$.value;
+    if (!currentPiece) return;
+    
+    const table = this.table;
+
+
   }
 }
