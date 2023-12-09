@@ -38,6 +38,7 @@ export class StateService {
   );
 
   public cancelTimers$ = new Subject<void>();
+  public cleanTable$ = new Subject<void>();
 
   public counter$: Observable<number> = this.isPaused$.pipe(
     filter((isPaused) => !isPaused),
@@ -133,6 +134,7 @@ export class StateService {
     this.score = 0;
     this.level = 1;
     this.lines = 0;
+    this.cleanTable$.next();
     this.gameOver$.next(false);
     this.gameStart$.next(false);
     this.isPaused$.next(true);

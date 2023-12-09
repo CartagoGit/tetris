@@ -1,5 +1,6 @@
 <div class="panel panel__piece">
-  @for(row of (stateSvc.nextPiece$ | async)!.state; track row){
+  @if(stateSvc.gameStart$ | async){ @for(row of (stateSvc.nextPiece$ |
+  async)!.state; track row){
   <div class="row">
     @for (cell of row; track cell){
     <div
@@ -17,7 +18,7 @@
     ></div>
     }
   </div>
-  }
+  }}
 </div>
 
 <button [disabled]="stateSvc.gameStart$ | async" (click)="stateSvc.startGame()">

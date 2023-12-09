@@ -83,7 +83,9 @@ export class TableComponent {
   private subscriptions: Subscription[] = [];
 
   // ANCHOR : Constructor
-  constructor(public stateSvc: StateService, private _cd: ChangeDetectorRef) {
+  constructor(public stateSvc: StateService, private _cd: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
     this._createSubscriptions();
   }
 
@@ -97,12 +99,18 @@ export class TableComponent {
     const subGameStart = this.stateSvc.gameStart$.subscribe((gameStart) => {
       console.log({ gameStart });
       if (!gameStart) return;
+
       this._newGame();
     });
     const subCurrentPiece = this.stateSvc.currentPiece$.subscribe(() => {
       this._paintPiece();
     });
-    this.subscriptions.push(subGameStart, subCurrentPiece);
+    const subCleanTable = this.stateSvc.cleanTable$.subscribe(() => {
+      console.log('clean table');
+      this._createNewTable();
+      this._cd.detectChanges();
+    });
+    this.subscriptions.push(subGameStart, subCurrentPiece, subCleanTable);
   }
 
   private _newGame(): void {
