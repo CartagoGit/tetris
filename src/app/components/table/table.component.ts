@@ -1,5 +1,5 @@
 import { CommonModule, JsonPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-table',
@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
   imports: [CommonModule],
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TableComponent {
   public rows = 20;

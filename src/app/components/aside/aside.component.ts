@@ -1,12 +1,23 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { StateService } from '../../shared/services/state.service';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-aside',
   standalone: true,
-  imports: [],
+  imports: [AsyncPipe],
   templateUrl: './aside.component.html',
-  styleUrl: './aside.component.scss'
+  styleUrl: './aside.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AsideComponent {
+  public isPaused = true;
 
+  constructor(public stateSvc: StateService) {}
+
+  public clickPause() {
+    const isPaused = this.stateSvc.isPaused$.value;
+    this.stateSvc.isPaused$.next(!isPaused);
+    this.isPaused = !isPaused;
+  }
 }

@@ -1,5 +1,5 @@
 .table {
-  border: 1px solid var(--gray-700);
+  border: 1px solid var(--gray-800);
   box-shadow: var(--box-shadow);
   background-color: var(--gray-700);
 }
@@ -9,8 +9,8 @@
 }
 
 .cell {
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
   border: 1px solid var(--gray-800);
   display: grid;
   place-items: center;
