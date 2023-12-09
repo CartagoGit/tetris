@@ -1,1 +1,9 @@
-<p>table works!</p>
+<div class="table">
+  @for(row of table; let i = $index ; track i){
+  <div class="row">
+    @for(cell of row; let j = $index ; track j){
+    <div class="cell"></div>
+    }
+  </div>
+  }
+</div>

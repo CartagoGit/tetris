@@ -1,0 +1,18 @@
+.table {
+  border: 1px solid var(--gray-700);
+  box-shadow: var(--box-shadow);
+  background-color: var(--gray-700);
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--gray-800);
+  display: grid;
+  place-items: center;
+  transition: ease 0.2s all;
+}
