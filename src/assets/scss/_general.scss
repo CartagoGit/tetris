@@ -29,3 +29,28 @@ body {
 router-outlet {
   display: none;
 }
+
+p {
+  margin: 0;
+}
+
+button {
+  all: unset;
+  cursor: pointer;
+  border-radius: 10px;
+  background-color: var(--gray-800);
+  font-size: 12px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: ease 0.2s all;
+  width: -webkit-fill-available;
+  box-shadow: var(--box-shadow);
+  &:hover {
+    background-color: var(--gray-900);
+  }
+  &:active {
+    background-color: var(--gray-800);
+  }
+}
