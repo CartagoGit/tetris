@@ -8,8 +8,6 @@ import {
   filter,
   interval,
   takeUntil,
-  takeWhile,
-  tap,
 } from 'rxjs';
 import { Piece } from '../models/piece.model';
 
@@ -18,7 +16,7 @@ import { Piece } from '../models/piece.model';
 })
 export class StateService {
   // ANCHOR : Properties
-  public audioOn: boolean = false;
+  public audioOn$ = new BehaviorSubject<boolean>(false);
   public timer$ = new BehaviorSubject<string>(this.formatTime(0));
   private _time = 0;
 

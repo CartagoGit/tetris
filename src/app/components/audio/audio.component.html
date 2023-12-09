@@ -1,4 +1,4 @@
-@if(stateSvc.audioOn){
+@if(stateSvc.audioOn$ | async){
 <audio
   controls
   src="./assets/sounds/tetris-theme.ogg"
@@ -10,11 +10,14 @@
 
 }
 
-<div class="audio-button" (click)="stateSvc.audioOn = !stateSvc.audioOn">
+<div
+  class="audio-button"
+  (click)="stateSvc.audioOn$.next(!stateSvc.audioOn$.value)"
+>
   <div class="wrapper-svg">
     <svg
       [ngStyle]="{
-        opacity: stateSvc.audioOn ? 0 : 1
+        opacity: (stateSvc.audioOn$ | async) ? 0 : 1
       }"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
@@ -26,7 +29,7 @@
 
     <svg
       [ngStyle]="{
-        opacity: stateSvc.audioOn ? 1 : 0
+        opacity: (stateSvc.audioOn$ | async) ? 1 : 0
       }"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"

@@ -4,11 +4,13 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  HostListener,
 } from '@angular/core';
 import { Piece } from '../../shared/models/piece.model';
 import { StateService } from '../../shared/services/state.service';
 import { Subscription } from 'rxjs';
 import { TableFillSpace } from '../../shared/interfaces/piece.interface';
+import { Keys } from '../../shared/interfaces/keys.interface';
 
 @Component({
   selector: 'app-table',
@@ -19,7 +21,31 @@ import { TableFillSpace } from '../../shared/interfaces/piece.interface';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TableComponent {
-  // ANCHOR  : Properties
+  // ANCHOR : Listeners
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    const { code } = event;
+    const possibleKeys: Keys[] = [
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowDown',
+      'ArrowUp',
+      'Space',
+      'KeyS',
+    ];
+    event.preventDefault();
+    if (!(possibleKeys as string[]).includes(code)) return;
+    const key = code as Keys;
+    if (key === 'KeyS') {
+      console.log('KeyS');
+      this.stateSvc.audioOn$.next(!this.stateSvc.audioOn$.value);
+    }
+
+    // Aquí puedes manejar el evento de teclado
+    console.log('Tecla presionada:', code);
+  }
+
+  // ANCHOR : Properties
   public rows = 20;
   public columns = 10;
   public table: TableFillSpace[][] = this._createNewTable();
@@ -28,7 +54,7 @@ export class TableComponent {
 
   private subscriptions: Subscription[] = [];
 
-  // ANCHOR  : Constructor
+  // ANCHOR : Constructor
   constructor(public stateSvc: StateService, private _cd: ChangeDetectorRef) {
     this._createSubscriptions();
   }
@@ -37,7 +63,7 @@ export class TableComponent {
     this.subscriptions.forEach((sub) => !sub.closed && sub.unsubscribe());
   }
 
-  // ANCHOR  : Methods
+  // ANCHOR : Methods
 
   private _createSubscriptions(): void {
     const subGameStart = this.stateSvc.gameStart$.subscribe((gameStart) => {
