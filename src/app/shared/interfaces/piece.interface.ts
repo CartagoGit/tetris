@@ -10,8 +10,33 @@ export interface Position {
 export interface PieceProps {
   piece: TypePiece;
   position: Position;
-  initState: TableFillSpace[][];
   state: TableFillSpace[][];
   rotation: '1' | '2' | '3' | '4';
 }
 
+export type Color =
+  | 'slate'
+  | 'gray'
+  | 'zinc'
+  | 'neutral'
+  | 'stone'
+  | 'red'
+  | 'orange'
+  | 'amber'
+  | 'yellow'
+  | 'lime'
+  | 'green'
+  | 'emerald'
+  | 'teal'
+  | 'cyan'
+  | 'sky'
+  | 'blue'
+  | 'indigo'
+  | 'violet'
+  | 'purple'
+  | 'fuchsia'
+  | 'pink'
+  | 'rose'
+  | 'white'
+  | 'black'
+  | 'transparent';
