@@ -22,9 +22,11 @@ export class StateService {
   public level: number = 1;
   public lines: number = 0;
 
-  public gameOver: boolean = false;
-  public gameStart: boolean = false;
+  public gameOver$ = new BehaviorSubject<boolean>(false);
+  public gameStart$ = new BehaviorSubject<boolean>(false);
   public maxScore: number;
+
+  public speed = 1000;
 
   public isPaused$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     true
@@ -42,12 +44,24 @@ export class StateService {
     const maxScoreStorage = Number(localStorage.getItem('maxScore'));
     this.maxScore = isNaN(maxScoreStorage) ? 0 : maxScoreStorage;
 
+    this._createSubscriptions();
+  }
+
+  ngOnDestroy(): void {
+    this._subscriptions.forEach((sub) => !sub.closed && sub.unsubscribe());
+  }
+
+  // ANCHOR : Methods
+
+  private _createSubscriptions(): void {
     let subCounter = this.counter$.subscribe(() => {
       this._time++;
       this.timer$.next(this.formatTime(this._time));
       console.log({ timer: this.timer$.value, time: this._time });
     });
+
     const subIsPaused = this.isPaused$.subscribe((isPaused) => {
+      if (this.gameOver$.value) return;
       if (isPaused && !subCounter.closed) subCounter.unsubscribe();
       else if (!isPaused) {
         subCounter.unsubscribe();
@@ -59,15 +73,18 @@ export class StateService {
         this._subscriptions.push(subCounter);
       }
     });
-    this._subscriptions.push(subIsPaused);
-  }
-  ngOnDestroy(): void {
-    this._subscriptions.forEach((sub) => !sub.closed && sub.unsubscribe());
-  }
 
-  // ANCHOR : Methods
+    const subGameOver = this.gameOver$.subscribe((gameOver) => {
+      if (gameOver) {
+        this.isPaused$.next(true);
+      }
+    });
+
+    this._subscriptions.push(subCounter, subIsPaused, subGameOver);
+  }
 
   public resetState(): void {
+    // TODO Pasar a cuando se pierde la partida tambien
     if (this.score > this.maxScore) {
       localStorage.setItem('maxScore', this.score.toString());
       this.maxScore = this.score;
@@ -77,14 +94,19 @@ export class StateService {
     this.score = 0;
     this.level = 1;
     this.lines = 0;
-    this.gameOver = false;
-    this.gameStart = false;
+    this.gameOver$.next(false);
+    this.gameStart$.next(false);
     this.isPaused$.next(true);
   }
 
   public startGame(): void {
-    this.gameStart = true;
+    this.resetState();
+    this.gameStart$.next(true);
     this.isPaused$.next(false);
+  }
+
+  public pauseGame(): void {
+    this.isPaused$.next(!this.isPaused$.value);
   }
 
   public formatTime(time: number): string {

@@ -14,10 +14,4 @@ export class AsideComponent {
   public isPaused = true;
 
   constructor(public stateSvc: StateService) {}
-
-  public clickPause() {
-    const isPaused = this.stateSvc.isPaused$.value;
-    this.stateSvc.isPaused$.next(!isPaused);
-    this.isPaused = !isPaused;
-  }
 }

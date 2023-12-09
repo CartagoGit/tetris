@@ -1,8 +1,15 @@
 <div class="panel panel__piece"></div>
 
-<button>Start</button>
-<button (click)="clickPause()">{{ isPaused ? "Resume" : "Pause" }}</button>
-<button>Reset</button>
+<button [disabled]="stateSvc.gameStart$ | async" (click)="stateSvc.startGame()">
+  Start
+</button>
+<button
+  [disabled]="!(stateSvc.gameStart$ | async)"
+  (click)="stateSvc.pauseGame()"
+>
+  {{ (stateSvc.isPaused$ | async) ? "Resume" : "Pause" }}
+</button>
+<button (click)="stateSvc.resetState()">Reset</button>
 
 <div class="panel panel__info">
   <header>Information</header>

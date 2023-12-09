@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TableComponent } from '../../components/table/table.component';
 import { AsideComponent } from '../../components/aside/aside.component';
+import { StateService } from '../../shared/services/state.service';
 
 @Component({
   selector: 'app-game',
@@ -12,4 +13,6 @@ import { AsideComponent } from '../../components/aside/aside.component';
 })
 export class GameComponent {
   public title = "Cartago's Tetris";
+
+  constructor(public stateSvc: StateService) {}
 }

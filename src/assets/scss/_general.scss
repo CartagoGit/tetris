@@ -53,4 +53,8 @@ button {
   &:active {
     background-color: var(--gray-800);
   }
+  &:disabled{
+    background-color: var(--gray-700);
+    cursor: not-allowed;
+  }
 }
