@@ -1,4 +1,24 @@
-<div class="panel panel__piece"></div>
+<div class="panel panel__piece">
+  @for(row of (stateSvc.nextPiece$ | async)!.state; track row){
+  <div class="row">
+    @for (cell of row; track cell){
+    <div
+      class="cell"
+      [ngClass]="{ piece: cell !== 'x' }"
+      [style]="
+        cell !== 'x'
+          ? 'background: var(--' +
+            PIECES_COLOR[cell] +
+            '-700); border-color:var(--' +
+            PIECES_COLOR[cell] +
+            '-800); '
+          : ''
+      "
+    ></div>
+    }
+  </div>
+  }
+</div>
 
 <button [disabled]="stateSvc.gameStart$ | async" (click)="stateSvc.startGame()">
   Start

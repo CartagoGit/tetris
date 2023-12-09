@@ -53,8 +53,26 @@ button {
   &:active {
     background-color: var(--gray-800);
   }
-  &:disabled{
+  &:disabled {
     background-color: var(--gray-700);
     cursor: not-allowed;
   }
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--gray-800);
+  display: grid;
+  place-items: center;
+  transition: ease 0.2s all;
+  box-sizing: border-box;
+}
+
+.piece {
+  border: 4px inset var(--gray-500);
 }

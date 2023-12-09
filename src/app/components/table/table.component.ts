@@ -33,12 +33,40 @@ export class TableComponent {
       'Space',
       'KeyS',
     ];
-    event.preventDefault();
+
     if (!(possibleKeys as string[]).includes(code)) return;
     const key = code as Keys;
     if (key === 'KeyS') {
       console.log('KeyS');
       this.stateSvc.audioOn$.next(!this.stateSvc.audioOn$.value);
+      return;
+    }
+    if (this.stateSvc.isPaused$.value || this.stateSvc.gameOver$.value) return;
+    if (['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(key)) {
+      const currentPiece = this.stateSvc.currentPiece$.value;
+      if (!currentPiece) return;
+      const { position } = currentPiece;
+      let { x: posX, y: posY } = position;
+      const { state } = currentPiece;
+      if (key === 'ArrowLeft') {
+        posX--;
+        console.log({ posX, posY });
+        if (posX < 0) return;
+      } else if (key === 'ArrowRight') {
+        posX++;
+        const limitRight = state[0].length - 1 + posX;
+        if (limitRight > this.columns - 1) return;
+      } else if (key === 'ArrowDown') {
+        posY++;
+        const limitDown = state.length - 1 + posY;
+        if (limitDown > this.rows - 1) {
+          this._createNewPiece();
+          return;
+        }
+      }
+      const newPosition = { x: posX, y: posY };
+      currentPiece.position = newPosition;
+      this.stateSvc.currentPiece$.next(currentPiece);
     }
 
     // Aquí puedes manejar el evento de teclado
@@ -108,7 +136,8 @@ export class TableComponent {
       const tableRowIndex = pos.y + pieceRow;
       if (tableRowIndex < 0) continue;
       if (tableRowIndex >= this.table.length) {
-        this.stateSvc.gameOver$.next(true);
+        // this.stateSvc.gameOver$.next(true);
+        this._createNewPiece();
         break;
       }
       outerLoop: for (
@@ -120,7 +149,8 @@ export class TableComponent {
         if (state[pieceRow][pieceCell] === 'x') continue;
         const actualTableCellPiece = this.table[tableRowIndex][tableCellIndex];
         if (actualTableCellPiece !== 'x') {
-          this.stateSvc.gameOver$.next(true);
+          // this.stateSvc.gameOver$.next(true);
+          this._createNewPiece();
           break outerLoop;
         }
         this.table[tableRowIndex][tableCellIndex] = typePiece;

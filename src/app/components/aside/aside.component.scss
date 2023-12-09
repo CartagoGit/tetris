@@ -23,6 +23,12 @@
     background-color: var(--gray-600);
     min-width: 100px;
     height: 100px;
+    gap: 0px;
+    .cell{
+      width: 20px;
+      height: 20px;
+      border-color: transparent;
+    }
   }
 
   &__info {
