@@ -16,6 +16,7 @@ import { Piece } from '../models/piece.model';
 })
 export class StateService {
   // ANCHOR : Properties
+  public audioOn: boolean = false;
   public timer$ = new BehaviorSubject<string>(this.formatTime(0));
   private _time = 0;
 
