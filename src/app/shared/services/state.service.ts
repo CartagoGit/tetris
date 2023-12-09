@@ -8,6 +8,8 @@ import {
   filter,
   interval,
   takeUntil,
+  takeWhile,
+  tap,
 } from 'rxjs';
 import { Piece } from '../models/piece.model';
 
@@ -37,9 +39,16 @@ export class StateService {
     true
   );
 
+  public cancelTimers$ = new Subject<void>();
+
   public counter$: Observable<number> = this.isPaused$.pipe(
     filter((isPaused) => !isPaused),
     concatMap(() => interval(1000))
+  );
+
+  public downCounter$: Observable<number> = this.isPaused$.pipe(
+    filter((isPaused) => !isPaused),
+    concatMap(() => interval(1000 / this.speed))
   );
 
   private _subscriptions: Subscription[] = [];
@@ -59,37 +68,64 @@ export class StateService {
   // ANCHOR : Methods
 
   private _createSubscriptions(): void {
-    let subCounter = this.counter$.subscribe(() => {
-      this._time++;
-      this.timer$.next(this.formatTime(this._time));
-      console.log({ timer: this.timer$.value, time: this._time });
-    });
-
+    let subCounter = this._newSubCounter();
+    let subDownCounter = this._newSubDownCounter();
     const subIsPaused = this.isPaused$.subscribe((isPaused) => {
-      if (this.gameOver$.value) return;
-      if (isPaused && !subCounter.closed) subCounter.unsubscribe();
-      else if (!isPaused) {
-        subCounter.unsubscribe();
-        subCounter = this.counter$.subscribe(() => {
-          this._time++;
-          this.timer$.next(this.formatTime(this._time));
-          console.log({ timer: this.timer$.value, time: this._time });
-        });
-        this._subscriptions.push(subCounter);
+      if (isPaused || this.gameOver$.value) {
+        if (!subCounter.closed) subCounter.unsubscribe();
+        if (!subDownCounter.closed) subDownCounter.unsubscribe();
+      } else if (!isPaused) {
+        this.cancelTimers$.next();
+        subCounter = this._newSubCounter();
+        subDownCounter = this._newSubDownCounter();
+        this._subscriptions.push(subCounter, subDownCounter);
       }
     });
 
     const subGameOver = this.gameOver$.subscribe((gameOver) => {
-      if (gameOver) {
-        this.isPaused$.next(true);
+      if (!gameOver) return;
+      this.cancelTimers$.next();
+      this.isPaused$.next(true);
+      if (this.score > this.maxScore) {
+        localStorage.setItem('maxScore', this.score.toString());
+        this.maxScore = this.score;
       }
     });
 
-    this._subscriptions.push(subCounter, subIsPaused, subGameOver);
+    this._subscriptions.push(
+      subCounter,
+      subDownCounter,
+      subIsPaused,
+      subGameOver
+    );
+  }
+
+  private _newSubCounter(): Subscription {
+    const subCounter = this.counter$
+      .pipe(takeUntil(this.cancelTimers$))
+      .subscribe(() => {
+        if (this.gameOver$.value) return;
+        this._time++;
+        this.timer$.next(this.formatTime(this._time));
+      });
+    return subCounter;
+  }
+
+  private _newSubDownCounter(): Subscription {
+    const subDownCounter = this.downCounter$
+      .pipe(takeUntil(this.cancelTimers$))
+      .subscribe(() => {
+        console.log({ gameOver: this.gameOver$.value });
+        const currentPiece = this.currentPiece$.value;
+        if (!currentPiece || this.gameOver$.value) return;
+        currentPiece.position.y++;
+        this.currentPiece$.next(currentPiece);
+        console.log('down');
+      });
+    return subDownCounter;
   }
 
   public resetState(): void {
-    // TODO Pasar a cuando se pierde la partida tambien
     if (this.score > this.maxScore) {
       localStorage.setItem('maxScore', this.score.toString());
       this.maxScore = this.score;

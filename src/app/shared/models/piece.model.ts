@@ -36,12 +36,12 @@ export const PIECES_INIT_STATE: Readonly<
     ['x', 'Z', 'Z'],
   ],
   J: [
-    ['J', 'x', 'x'],
     ['J', 'J', 'J'],
+    ['x', 'x', 'J'],
   ],
   L: [
-    ['x', 'x', 'L'],
     ['L', 'L', 'L'],
+    ['L', 'x', 'x'],
   ],
 };
 
@@ -78,7 +78,7 @@ export class Piece implements PieceProps {
     const state = PIECES_INIT_STATE[piece];
     const midPiece = Math.floor(state[0].length / 2);
     const columns = 10;
-    const midTable = Math.floor(columns/ 2);
+    const midTable = Math.floor(columns / 2);
     const position = { x: midTable - midPiece, y: 0 };
     const rotation = '1';
     return { piece, position, state, rotation };

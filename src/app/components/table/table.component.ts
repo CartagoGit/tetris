@@ -1,5 +1,10 @@
+import { PIECES_COLOR } from './../../shared/models/piece.model';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+} from '@angular/core';
 import { Piece } from '../../shared/models/piece.model';
 import { StateService } from '../../shared/services/state.service';
 import { Subscription } from 'rxjs';
@@ -18,19 +23,14 @@ export class TableComponent {
   public rows = 20;
   public columns = 10;
   public table: TableFillSpace[][] = this._createNewTable();
+  public savedTable = this.table;
+  public PIECES_COLOR = PIECES_COLOR;
 
   private subscriptions: Subscription[] = [];
 
   // ANCHOR  : Constructor
-  constructor(public stateSvc: StateService) {
+  constructor(public stateSvc: StateService, private _cd: ChangeDetectorRef) {
     this._createSubscriptions();
-
-    // Check new Pieces
-    const pieces = [];
-    for (let i = 0; i < 50; i++) {
-      pieces.push(new Piece());
-    }
-    console.log(pieces, this.table);
   }
 
   ngOnDestroy(): void {
@@ -41,34 +41,67 @@ export class TableComponent {
 
   private _createSubscriptions(): void {
     const subGameStart = this.stateSvc.gameStart$.subscribe((gameStart) => {
+      console.log({ gameStart });
       if (!gameStart) return;
       this._newGame();
     });
-    this.subscriptions.push(subGameStart);
+    const subCurrentPiece = this.stateSvc.currentPiece$.subscribe(() => {
+      this._paintPiece();
+    });
+    this.subscriptions.push(subGameStart, subCurrentPiece);
   }
 
   private _newGame(): void {
     this._createNewTable();
+    this._createNewPiece();
   }
 
   private _createNewTable(): TableFillSpace[][] {
-    this.table = new Array(this.rows).fill(
-      new Array<TableFillSpace>(this.columns).fill('x')
-    );
+    const newTable = () =>
+      Array.from({ length: this.rows }, () => [
+        ...new Array<TableFillSpace>(this.columns).fill('x'),
+      ]);
+    this.table = newTable();
+    this.savedTable = newTable();
     return this.table;
   }
 
   private _createNewPiece(): void {
+    this.savedTable = this.table.map((row) => [...row]);
     this.stateSvc.currentPiece$.next(this.stateSvc.nextPiece$.value);
     this.stateSvc.nextPiece$.next(new Piece());
   }
 
-  private _paintPiece (piece: Piece): void {
+  private _paintPiece(): void {
     const currentPiece = this.stateSvc.currentPiece$.value;
     if (!currentPiece) return;
-    
-    const table = this.table;
-
-
+    const beforeTable = this.table.map((row) => [...row]);
+    this.table = this.savedTable.map((row) => [...row]);
+    const { state, position: pos, piece: typePiece } = currentPiece;
+    for (let pieceRow = 0; pieceRow < state.length; pieceRow++) {
+      const tableRowIndex = pos.y + pieceRow;
+      if (tableRowIndex < 0) continue;
+      if (tableRowIndex >= this.table.length) {
+        this.stateSvc.gameOver$.next(true);
+        break;
+      }
+      outerLoop: for (
+        let pieceCell = 0;
+        pieceCell < state[pieceRow].length;
+        pieceCell++
+      ) {
+        const tableCellIndex = pos.x + pieceCell;
+        if (state[pieceRow][pieceCell] === 'x') continue;
+        const actualTableCellPiece = this.table[tableRowIndex][tableCellIndex];
+        if (actualTableCellPiece !== 'x') {
+          this.stateSvc.gameOver$.next(true);
+          break outerLoop;
+        }
+        this.table[tableRowIndex][tableCellIndex] = typePiece;
+      }
+    }
+    if (this.stateSvc.gameOver$.value)
+      this.table = beforeTable.map((row) => [...row]);
+    this._cd.detectChanges();
   }
 }

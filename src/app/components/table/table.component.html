@@ -2,7 +2,20 @@
   @for(row of table; track row){
   <div class="row">
     @for(cell of row; track cell){
-    <div class="cell"></div>
+
+    <div
+      class="cell"
+      [ngClass]="{ piece: cell !== 'x' }"
+      [style]="
+        cell !== 'x'
+          ? 'background: var(--' +
+            PIECES_COLOR[cell] +
+            '-700); border-color:var(--' +
+            PIECES_COLOR[cell] +
+            '-800); '
+          : ''
+      "
+    ></div>
     }
   </div>
   }
