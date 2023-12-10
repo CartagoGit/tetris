@@ -114,12 +114,10 @@ export class StateService {
     const subDownCounter = this.downCounter$
       .pipe(takeUntil(this.cancelTimers$))
       .subscribe(() => {
-        console.log({ gameOver: this.gameOver$.value });
         const currentPiece = this.currentPiece$.value;
         if (!currentPiece || this.gameOver$.value) return;
         currentPiece.position.y++;
         this.currentPiece$.next(currentPiece);
-        console.log('down');
       });
     return subDownCounter;
   }

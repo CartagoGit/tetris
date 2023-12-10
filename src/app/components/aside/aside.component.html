@@ -10,9 +10,13 @@
         cell !== 'x'
           ? 'background: var(--' +
             PIECES_COLOR[cell] +
-            '-700); border-color:var(--' +
+            '-' +
+            PIECES_INTENSE[cell].background +
+            '); border-color:var(--' +
             PIECES_COLOR[cell] +
-            '-800); '
+            '-' +
+            PIECES_INTENSE[cell].border +
+            '); '
           : ''
       "
     ></div>

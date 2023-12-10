@@ -1,4 +1,7 @@
-import { PIECES_COLOR } from './../../shared/models/piece.model';
+import {
+  PIECES_COLOR,
+  PIECES_INTENSE,
+} from './../../shared/models/piece.model';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -63,12 +66,12 @@ export class TableComponent {
         posY++;
         const limitDown = state.length - 1 + posY;
         if (limitDown > this.rows - 1) {
+          this._clearLines();
           this._createNewPiece();
           return;
         }
       } else if (key === 'ArrowUp') {
-        if(currentPiece.type === 'O') return;
-        console.log('rotate');
+        if (currentPiece.type === 'O') return;
         pieceCloned.rotate();
         const isCollision = this._checkColisions(pieceCloned);
         if (isCollision) return;
@@ -87,6 +90,7 @@ export class TableComponent {
   public table: TableFillSpace[][] = this._createNewTable();
   public savedTable = this.table;
   public PIECES_COLOR = PIECES_COLOR;
+  public PIECES_INTENSE = PIECES_INTENSE;
 
   private subscriptions: Subscription[] = [];
 
@@ -113,6 +117,7 @@ export class TableComponent {
       const isCollision = this._checkColisions(piece);
 
       if (isCollision) {
+        if (this._clearLines()) return;
         if (piece.position.y <= 0) {
           piece.position.y = piece.position.y - 1;
           this._paintPiece(piece);
@@ -191,5 +196,24 @@ export class TableComponent {
       }
     }
     return false;
+  }
+
+  private _clearLines(): boolean {
+    const needClear = this.table.some((row) =>
+      row.every((cell) => cell !== 'x')
+    );
+    console.log({ needClear });
+    if (!needClear) return needClear;
+    for (let row = 0; row < this.table.length; row++) {
+      const isLineToClear = this.table[row].every((cell) => cell !== 'x');
+      if (!isLineToClear) continue;
+      this.table.splice(row, 1);
+      this.table.unshift(new Array(this.columns).fill('x'));
+      this.stateSvc.lines++;
+      this.stateSvc.score += 100;
+      this.stateSvc.level = Math.floor(this.stateSvc.lines / 10) + 1;
+      this._cd.detectChanges();
+    }
+    return needClear;
   }
 }

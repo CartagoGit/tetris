@@ -55,6 +55,18 @@ export const PIECES_COLOR: Readonly<Record<TypePiece, Color>> = {
   L: 'fuchsia',
 } as const;
 
+export const PIECES_INTENSE: Readonly<
+  Record<TypePiece, { background: number; border: number }>
+> = {
+  I: { background: 700, border: 800 },
+  O: { background: 700, border: 800 },
+  T: { background: 600, border: 700 },
+  S: { background: 700, border: 800 },
+  Z: { background: 700, border: 800 },
+  J: { background: 700, border: 800 },
+  L: { background: 700, border: 800 },
+};
+
 export class Piece implements PieceProps {
   public readonly type: TypePiece;
   public position: { x: number; y: number };
@@ -96,14 +108,11 @@ export class Piece implements PieceProps {
     let newState: TableFillSpace[][] = [];
     const actualRowsState = this.state.length;
     const actualColsState = this.state[0].length;
-    console.log({ actualRowsState, actualColsState });
 
     for (let row = 0; row < actualColsState; row++) {
       newState[row] = [];
       for (let col = 0; col < actualRowsState; col++) {
         newState[row][col] = this.state[this.state.length - col - 1][row];
-        const checkState = newState.map((row) => [...row]);
-        console.log('col', { checkState });
       }
     }
     this.state = newState;
