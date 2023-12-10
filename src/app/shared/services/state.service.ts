@@ -142,6 +142,7 @@ export class StateService {
 
   public startGame(): void {
     this.resetState();
+    this.nextPiece$.next(new Piece());
     this.gameStart$.next(true);
     this.isPaused$.next(false);
   }

@@ -25,7 +25,7 @@
   Start
 </button>
 <button
-  [disabled]="!(stateSvc.gameStart$ | async)"
+  [disabled]="!(stateSvc.gameStart$ | async) || (stateSvc.gameOver$ | async)"
   (click)="stateSvc.pauseGame()"
 >
   {{ (stateSvc.isPaused$ | async) ? "Resume" : "Pause" }}

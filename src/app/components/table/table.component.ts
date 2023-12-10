@@ -97,16 +97,21 @@ export class TableComponent {
 
   private _createSubscriptions(): void {
     const subGameStart = this.stateSvc.gameStart$.subscribe((gameStart) => {
-      console.log({ gameStart });
       if (!gameStart) return;
-
       this._newGame();
     });
-    const subCurrentPiece = this.stateSvc.currentPiece$.subscribe(() => {
+    const subCurrentPiece = this.stateSvc.currentPiece$.subscribe((piece) => {
+      if (!piece) return;
+      const isCollision = this._checkColisions(piece);
+      if (isCollision) {
+        if(piece.position.y <= 0) this.stateSvc.gameOver$.next(true)
+        this._createNewPiece();
+        return;
+      }
       this._paintPiece();
+      this._cd.detectChanges();
     });
     const subCleanTable = this.stateSvc.cleanTable$.subscribe(() => {
-      console.log('clean table');
       this._createNewTable();
       this._cd.detectChanges();
     });
@@ -144,8 +149,8 @@ export class TableComponent {
       const tableRowIndex = pos.y + pieceRow;
       if (tableRowIndex < 0) continue;
       if (tableRowIndex >= this.table.length) {
-        // this.stateSvc.gameOver$.next(true);
         this._createNewPiece();
+        return;
         break;
       }
       outerLoop: for (
@@ -157,8 +162,8 @@ export class TableComponent {
         if (state[pieceRow][pieceCell] === 'x') continue;
         const actualTableCellPiece = this.table[tableRowIndex][tableCellIndex];
         if (actualTableCellPiece !== 'x') {
-          // this.stateSvc.gameOver$.next(true);
           this._createNewPiece();
+          return;
           break outerLoop;
         }
         this.table[tableRowIndex][tableCellIndex] = typePiece;
@@ -166,6 +171,10 @@ export class TableComponent {
     }
     if (this.stateSvc.gameOver$.value)
       this.table = beforeTable.map((row) => [...row]);
-    this._cd.detectChanges();
+
+  }
+
+  private _checkColisions(piece: Piece): boolean {
+    return true
   }
 }

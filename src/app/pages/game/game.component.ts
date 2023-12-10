@@ -1,3 +1,4 @@
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TableComponent } from '../../components/table/table.component';
 import { AsideComponent } from '../../components/aside/aside.component';
@@ -6,7 +7,7 @@ import { StateService } from '../../shared/services/state.service';
 @Component({
   selector: 'app-game',
   standalone: true,
-  imports: [TableComponent, AsideComponent],
+  imports: [AsyncPipe, TableComponent, AsideComponent],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
