@@ -68,9 +68,6 @@ export class TableComponent {
       currentPiece.position = newPosition;
       this.stateSvc.currentPiece$.next(currentPiece);
     }
-
-    // Aquí puedes manejar el evento de teclado
-    console.log('Tecla presionada:', code);
   }
 
   // ANCHOR : Properties
@@ -102,10 +99,28 @@ export class TableComponent {
     });
     const subCurrentPiece = this.stateSvc.currentPiece$.subscribe((piece) => {
       if (!piece) return;
-      const isCollision = this._checkColisions(piece);
-      if (isCollision) {
-        if(piece.position.y <= 0) this.stateSvc.gameOver$.next(true)
+      const dataCollision = this._checkColisions(piece);
+      console.log({ ...dataCollision });
+      if (dataCollision.isCollision) {
+        if (piece.position.y <= 0) {
+          const { coordinate } = dataCollision;
+          const { x: cordX, y: cordY } = coordinate!;
+          console.log({
+            cordX,
+            cordY,
+            xLength: piece.state[0].length,
+            yLength: piece.state.length,
+          });
+
+          piece.position.y = piece.position.y - 1;
+          console.log({ ...piece.position });
+          this._paintPiece(piece);
+          this.stateSvc.gameOver$.next(true);
+          this._cd.detectChanges();
+          return;
+        }
         this._createNewPiece();
+        this._cd.detectChanges();
         return;
       }
       this._paintPiece();
@@ -139,42 +154,47 @@ export class TableComponent {
     this.stateSvc.nextPiece$.next(new Piece());
   }
 
-  private _paintPiece(): void {
-    const currentPiece = this.stateSvc.currentPiece$.value;
+  private _paintPiece(finalPiece?: Piece): void {
+    const currentPiece = finalPiece ?? this.stateSvc.currentPiece$.value;
     if (!currentPiece) return;
-    const beforeTable = this.table.map((row) => [...row]);
     this.table = this.savedTable.map((row) => [...row]);
     const { state, position: pos, piece: typePiece } = currentPiece;
     for (let pieceRow = 0; pieceRow < state.length; pieceRow++) {
       const tableRowIndex = pos.y + pieceRow;
       if (tableRowIndex < 0) continue;
-      if (tableRowIndex >= this.table.length) {
-        this._createNewPiece();
-        return;
-        break;
-      }
-      outerLoop: for (
-        let pieceCell = 0;
-        pieceCell < state[pieceRow].length;
-        pieceCell++
-      ) {
+      for (let pieceCell = 0; pieceCell < state[pieceRow].length; pieceCell++) {
         const tableCellIndex = pos.x + pieceCell;
         if (state[pieceRow][pieceCell] === 'x') continue;
-        const actualTableCellPiece = this.table[tableRowIndex][tableCellIndex];
-        if (actualTableCellPiece !== 'x') {
-          this._createNewPiece();
-          return;
-          break outerLoop;
-        }
         this.table[tableRowIndex][tableCellIndex] = typePiece;
       }
     }
-    if (this.stateSvc.gameOver$.value)
-      this.table = beforeTable.map((row) => [...row]);
-
   }
 
-  private _checkColisions(piece: Piece): boolean {
-    return true
+  private _checkColisions(piece: Piece): {
+    isCollision: boolean;
+    coordinate: { x: number; y: number } | null;
+  } {
+    const { position: pos, state } = piece;
+    const { x: posX, y: posY } = pos;
+    console.log({ posX, posY, state });
+    for (let pieceRow = 0; pieceRow < state.length; pieceRow++) {
+      const tableRowIndex = posY + pieceRow;
+      if (tableRowIndex < 0) continue;
+      for (let pieceCell = 0; pieceCell < state[pieceRow].length; pieceCell++) {
+        const tableCellIndex = posX + pieceCell;
+        if (state[pieceRow][pieceCell] === 'x') continue;
+        const actualTableCellPiece =
+          this.savedTable[tableRowIndex][tableCellIndex];
+        if (actualTableCellPiece !== 'x')
+          return {
+            isCollision: true,
+            coordinate: { x: tableCellIndex, y: tableRowIndex },
+          };
+      }
+    }
+    return {
+      isCollision: false,
+      coordinate: null,
+    };
   }
 }
