@@ -202,18 +202,22 @@ export class TableComponent {
     const needClear = this.table.some((row) =>
       row.every((cell) => cell !== 'x')
     );
-    console.log({ needClear });
     if (!needClear) return needClear;
+    let clearedLines = 0;
     for (let row = 0; row < this.table.length; row++) {
       const isLineToClear = this.table[row].every((cell) => cell !== 'x');
       if (!isLineToClear) continue;
       this.table.splice(row, 1);
       this.table.unshift(new Array(this.columns).fill('x'));
-      this.stateSvc.lines++;
-      this.stateSvc.score += 100;
-      this.stateSvc.level = Math.floor(this.stateSvc.lines / 10) + 1;
-      this._cd.detectChanges();
+      clearedLines++;
     }
+    this.stateSvc.score += 100 * this.stateSvc.level$.value * clearedLines ** 2;
+
+    this.stateSvc.lines += clearedLines;
+    const level = Math.floor(this.stateSvc.lines / 10) + 1;
+    if (this.stateSvc.level$.value !== level) this.stateSvc.level$.next(level);
+
+    this._cd.detectChanges();
     return needClear;
   }
 }

@@ -40,7 +40,7 @@
   <header>Information</header>
   <main>
     <p>
-      <span>Level: </span><span>{{ stateSvc.level }}</span>
+      <span>Level: </span><span>{{ stateSvc.level$ | async }}</span>
     </p>
     <p>
       <span>Time: </span><span> {{ stateSvc.timer$ | async }}</span>

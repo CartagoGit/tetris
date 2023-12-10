@@ -7,6 +7,7 @@ import {
   concatMap,
   filter,
   interval,
+  map,
   takeUntil,
 } from 'rxjs';
 import { Piece } from '../models/piece.model';
@@ -21,11 +22,12 @@ export class StateService {
   private _time = 0;
 
   public score: number = 0;
-  public level: number = 1;
+  public level$ = new BehaviorSubject<number>(1);
   public lines: number = 0;
 
   public gameOver$ = new BehaviorSubject<boolean>(false);
   public gameStart$ = new BehaviorSubject<boolean>(false);
+  public isNewRecord$ = new BehaviorSubject<boolean>(false);
   public maxScore: number;
 
   public currentPiece$ = new BehaviorSubject<Piece | undefined>(undefined);
@@ -38,6 +40,7 @@ export class StateService {
   );
 
   public cancelTimers$ = new Subject<void>();
+  public cancelDownCounter$ = new Subject<void>();
   public cleanTable$ = new Subject<void>();
 
   public counter$: Observable<number> = this.isPaused$.pipe(
@@ -45,9 +48,9 @@ export class StateService {
     concatMap(() => interval(1000))
   );
 
-  public downCounter$: Observable<number> = this.isPaused$.pipe(
+  public downCounter$: Observable<void> = this.isPaused$.pipe(
     filter((isPaused) => !isPaused),
-    concatMap(() => interval(1000 / this.speed))
+    map(() => undefined)
   );
 
   private _subscriptions: Subscription[] = [];
@@ -88,14 +91,23 @@ export class StateService {
       if (this.score > this.maxScore) {
         localStorage.setItem('maxScore', this.score.toString());
         this.maxScore = this.score;
+        this.isNewRecord$.next(true);
       }
+    });
+
+    const subLevel = this.level$.subscribe((level) => {
+      this.speed = level;
+      this.cancelDownCounter$.next();
+      subDownCounter = this._newSubDownCounter();
+      this._subscriptions.push(subDownCounter);
     });
 
     this._subscriptions.push(
       subCounter,
       subDownCounter,
       subIsPaused,
-      subGameOver
+      subGameOver,
+      subLevel
     );
   }
 
@@ -112,7 +124,11 @@ export class StateService {
 
   private _newSubDownCounter(): Subscription {
     const subDownCounter = this.downCounter$
-      .pipe(takeUntil(this.cancelTimers$))
+      .pipe(
+        concatMap(() => interval(1000 / this.speed)),
+        takeUntil(this.cancelTimers$),
+        takeUntil(this.cancelDownCounter$)
+      )
       .subscribe(() => {
         const currentPiece = this.currentPiece$.value;
         if (!currentPiece || this.gameOver$.value) return;
@@ -123,19 +139,17 @@ export class StateService {
   }
 
   public resetState(): void {
-    if (this.score > this.maxScore) {
-      localStorage.setItem('maxScore', this.score.toString());
-      this.maxScore = this.score;
-    }
     this._time = 0;
     this.timer$.next(this.formatTime(0));
     this.score = 0;
-    this.level = 1;
+    this.level$.next(1);
     this.lines = 0;
     this.cleanTable$.next();
     this.gameOver$.next(false);
     this.gameStart$.next(false);
     this.isPaused$.next(true);
+    this.cancelTimers$.next();
+    this.isNewRecord$.next(false);
   }
 
   public startGame(): void {

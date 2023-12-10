@@ -1,9 +1,11 @@
 <header>{{ title }}</header>
 
 <main>
-  @if(stateSvc.gameOver$ | async){
+  @if((stateSvc.gameOver$ | async)){
   <div class="game-over">
     <span>Game Over</span>
+    @if((stateSvc.isNewRecord$ | async)){
+    <span class="new-record">New Record!</span>}
     <span>Score: {{ stateSvc.score }}</span>
   </div>
   }

@@ -50,9 +50,9 @@ export const PIECES_COLOR: Readonly<Record<TypePiece, Color>> = {
   O: 'blue',
   T: 'green',
   S: 'yellow',
-  Z: 'purple',
+  Z: 'fuchsia',
   J: 'orange',
-  L: 'fuchsia',
+  L: 'violet',
 } as const;
 
 export const PIECES_INTENSE: Readonly<
@@ -61,8 +61,8 @@ export const PIECES_INTENSE: Readonly<
   I: { background: 700, border: 800 },
   O: { background: 700, border: 800 },
   T: { background: 600, border: 700 },
-  S: { background: 700, border: 800 },
-  Z: { background: 700, border: 800 },
+  S: { background: 600, border: 700 },
+  Z: { background: 600, border: 700 },
   J: { background: 700, border: 800 },
   L: { background: 700, border: 800 },
 };
