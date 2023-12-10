@@ -92,7 +92,20 @@ export class Piece implements PieceProps {
   }
 
   public rotate(): void {
-    // const newState = this._rotatePiece(this.state);
-    // this.state = newState;
+    if (this.type === 'O') return;
+    let newState: TableFillSpace[][] = [];
+    const actualRowsState = this.state.length;
+    const actualColsState = this.state[0].length;
+    console.log({ actualRowsState, actualColsState });
+
+    for (let row = 0; row < actualColsState; row++) {
+      newState[row] = [];
+      for (let col = 0; col < actualRowsState; col++) {
+        newState[row][col] = this.state[this.state.length - col - 1][row];
+        const checkState = newState.map((row) => [...row]);
+        console.log('col', { checkState });
+      }
+    }
+    this.state = newState;
   }
 }

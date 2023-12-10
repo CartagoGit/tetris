@@ -37,31 +37,27 @@ export class TableComponent {
     if (!(possibleKeys as string[]).includes(code)) return;
     const key = code as Keys;
     if (key === 'KeyS') {
-      console.log('KeyS');
       this.stateSvc.audioOn$.next(!this.stateSvc.audioOn$.value);
       return;
     }
     if (this.stateSvc.isPaused$.value || this.stateSvc.gameOver$.value) return;
-    if (['ArrowLeft', 'ArrowRight', 'ArrowDown'].includes(key)) {
+    if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'].includes(key)) {
       const currentPiece = this.stateSvc.currentPiece$.value;
       if (!currentPiece) return;
-      const newPiecePosition = currentPiece.clonePiece();
+      const pieceCloned = currentPiece.clonePiece();
       const { position } = currentPiece;
       let { x: posX, y: posY } = position;
       const { state } = currentPiece;
       if (key === 'ArrowLeft') {
         posX--;
-        console.log({ posX, posY });
-        newPiecePosition.position.x = posX;
-        console.log({ newPiecePosition, currentPiece });
-        const isCollision = this._checkColisions(newPiecePosition as Piece);
-        console.log({ isCollision });
+        pieceCloned.position.x = posX;
+        const isCollision = this._checkColisions(pieceCloned);
         if (posX < 0 || isCollision) return;
       } else if (key === 'ArrowRight') {
         posX++;
         const limitRight = state[0].length - 1 + posX;
-        newPiecePosition.position.x = posX;
-        const isCollision = this._checkColisions(newPiecePosition as Piece);
+        pieceCloned.position.x = posX;
+        const isCollision = this._checkColisions(pieceCloned);
         if (limitRight > this.columns - 1 || isCollision) return;
       } else if (key === 'ArrowDown') {
         posY++;
@@ -70,6 +66,14 @@ export class TableComponent {
           this._createNewPiece();
           return;
         }
+      } else if (key === 'ArrowUp') {
+        if(currentPiece.type === 'O') return;
+        console.log('rotate');
+        pieceCloned.rotate();
+        const isCollision = this._checkColisions(pieceCloned);
+        if (isCollision) return;
+        this.stateSvc.currentPiece$.next(pieceCloned);
+        return;
       }
       const newPosition = { x: posX, y: posY };
       currentPiece.position = newPosition;
@@ -170,7 +174,6 @@ export class TableComponent {
   private _checkColisions(piece: Piece): boolean {
     const { position: pos, state } = piece;
     const { x: posX, y: posY } = pos;
-    console.log({ posX, posY, state });
     const limitDown = state.length - 1 + posY;
     if (limitDown > this.rows - 1) return true;
 
