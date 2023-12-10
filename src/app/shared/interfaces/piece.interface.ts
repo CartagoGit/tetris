@@ -8,7 +8,7 @@ export interface Position {
 }
 
 export interface PieceProps {
-  piece: TypePiece;
+  type: TypePiece;
   position: Position;
   state: TableFillSpace[][];
   rotation: '1' | '2' | '3' | '4';

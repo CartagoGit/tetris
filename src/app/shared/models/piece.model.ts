@@ -56,32 +56,39 @@ export const PIECES_COLOR: Readonly<Record<TypePiece, Color>> = {
 } as const;
 
 export class Piece implements PieceProps {
-  public readonly piece;
-  public position;
-  public state;
-  public readonly initState;
-  public rotation;
+  public readonly type: TypePiece;
+  public position: { x: number; y: number };
+  public state: TableFillSpace[][];
+  public readonly initState: TableFillSpace[][];
+  public rotation: '1' | '2' | '3' | '4';
   public readonly color: Color;
 
-  constructor() {
-    const { piece, position, state, rotation } = this._createNewPiece();
-    this.piece = piece;
-    this.color = PIECES_COLOR[piece];
-    this.position = position;
-    this.initState = state;
-    this.state = state;
+  constructor(clonePiece?: Piece) {
+    const { type, position, state, rotation } =
+      clonePiece ?? this._createNewPiece();
+    const { initState } = clonePiece || {};
+    const { x: posX, y: posY } = position;
+    this.type = type;
+    this.color = PIECES_COLOR[type];
+    this.position = { x: posX, y: posY };
+    this.initState = (initState ?? state).map((row) => [...row]);
+    this.state = state.map((row) => [...row]);
     this.rotation = rotation;
   }
 
   private _createNewPiece(): PieceProps {
-    const piece = KIND_PIECES[Math.floor(Math.random() * KIND_PIECES.length)];
-    const state = PIECES_INIT_STATE[piece];
+    const type = KIND_PIECES[Math.floor(Math.random() * KIND_PIECES.length)];
+    const state = PIECES_INIT_STATE[type];
     const midPiece = Math.floor(state[0].length / 2);
     const columns = 10;
     const midTable = Math.floor(columns / 2);
     const position = { x: midTable - midPiece, y: 0 };
     const rotation = '1';
-    return { piece, position, state, rotation };
+    return { type, position, state, rotation };
+  }
+
+  public clonePiece(): Piece {
+    return new Piece(this);
   }
 
   public rotate(): void {

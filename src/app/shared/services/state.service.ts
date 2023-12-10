@@ -47,7 +47,7 @@ export class StateService {
 
   public downCounter$: Observable<number> = this.isPaused$.pipe(
     filter((isPaused) => !isPaused),
-    concatMap(() => interval(500 / this.speed))
+    concatMap(() => interval(1000 / this.speed))
   );
 
   private _subscriptions: Subscription[] = [];
